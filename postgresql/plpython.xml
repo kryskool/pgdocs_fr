@@ -70,24 +70,24 @@
     <listitem>
      <para>
       Le langage PostgreSQL nommé <literal>plpython2u</literal> implémente
-      PL/Python sur la variante Python 2 du langage.
+      PL/Python sur la version 2 du language Python.
      </para>
     </listitem>
 
     <listitem>
      <para>
       Le langage PostgreSQL nommé <literal>plpython3u</literal> implémente
-      PL/Python sur la variante Python 3 du langage.
+      PL/Python sur la version 3 du langage Python.
      </para>
     </listitem>
 
     <listitem>
      <para>
       Le langage nommé <literal>plpythonu</literal> implémente PL/Python
-      suivant la variante par défaut du langage Python, qui est actuellement
+      suivant la version par défaut du langage Python, qui est actuellement
       Python 2. (Cette valeur par défaut est indépendante de ce que toute
       installations locales de Python pourrait considérer comme la valeur
-      par <quote>défaut</quote>, par exemplece que pourrait être
+      par <quote>défaut</quote>, par exemple ce que pourrait être
       <filename>/usr/bin/python</filename>.) La valeur par défaut sera
       probablement changée avec Python 3 dans une prochaine version de
       PostgreSQL, suivant les progrès de la migration à Python 3 dans la
@@ -96,8 +96,8 @@
     </listitem>
    </itemizedlist>
 
-   Cela dépend de la configuration lors de la compilation ou des paquets
-   installés si PL/Python pour Python 2 ou Python 3 ou les deux sont
+   Cela dépend également de la configuration lors de la compilation ou des paquets
+   installés si PL/Python pour Python 2, Python 3 ou les deux sont
    disponibles.
   </para>
 
@@ -127,7 +127,7 @@
      </para>
 
      <para>
-      En pratique, beaucoup de fonctions PL/Python seront migrées à Python 3
+      En pratique, beaucoup de fonctions PL/Python seront migrées vers Python 3
       avec peu, voire par du tout, de modifications.
      </para>
     </listitem>
@@ -135,7 +135,7 @@
     <listitem>
      <para>
       Les utilisateurs sachant d'avance qu'ils ont du code reposant massivement
-      sur Python 2 et ne planifient pas de changer peuvent utiliser le nom
+      sur Python 2 et qui ne planifient pas de changer, peuvent utiliser le nom
       <literal>plpython2u</literal>. Cela continuera de fonctionner, y compris
       dans un futur lointain, jusqu'à ce que le support de Python 2 soit
       complètement supprimée de PostgreSQL.
@@ -175,9 +175,9 @@
   <para>
    Il n'est pas permis d'utiliser PL/Python basé sur Python 2 et PL/Python
    basé sur Python 3 dans la même session car les symbôles dans les modules
-   dynamiques entreraient en conflit, ce qui pourrait résulter en des arrêts
+   dynamiques entreraient en conflit, ce qui pourrait résulter par des arrêts
    brutaux du processus serveur PostgreSQL. Une vérification est ajoutée pour
-   empêcher ce mélange de versions majeures Python dans une même sessio. Cette
+   empêcher ce mélange de versions majeures Python dans une même session. Cette
    vérification aura pour effet d'annuler la session si une différence est
    détectée. Néanmoins, il est possible d'utiliser les deux variantes de
    PL/Python dans une même base de données à condition que ce soit dans des
@@ -195,6 +195,7 @@
   RETURNS <replaceable>return-type</replaceable>
 AS $$
   # corps de la fonction PL/Python
+  # l'indention compte énormément
 $$ LANGUAGE plpythonu;
 </programlisting>
   </para>
@@ -210,7 +211,7 @@ $$ LANGUAGE plpythonu;
    de résultats). Si vous ne fournissez pas une valeur de retour, Python
    renvoie la valeur par défaut <symbol>None</symbol>.
    <application>PL/Python</application> traduit la valeur <symbol>None</symbol>
-   de Python comme une valeur NULL SQL.
+   en Python comme la valeur NULL en SQL.
   </para>
 
   <para>
@@ -361,7 +362,7 @@ $$ LANGUAGE plpythonu;
 
      <listitem>
       <para>
-       Pour tous les autres types de retrour PostgreSQL, la valeur renvoyée par 
+       Pour tous les autres types de retour PostgreSQL, la valeur renvoyée par 
        Python est convertie en chaine de caractères en utilisant la méthode 
        Python <literal>str</literal>, et et le résultat est transmis à la 
        fonction d'entrée du type de données PostgreSQL.
@@ -373,7 +374,7 @@ $$ LANGUAGE plpythonu;
        l'encodage du serveur entraineront la levée d'une erreur, mais toutes les 
        erreurs d'encodage ne sont pas detectées, ce qui peut aboutir à une 
        corruption des données lorsque ces règles ne sont pas respéctée. Les 
-       chaines  Unicode sont automatiquement converties dans le bon encodage, 
+       chaines Unicode sont automatiquement converties dans le bon encodage, 
        il est donc plus prudent de les utiliser. Dans Python 3, toutes les 
        chaines sont en Unicode.
       </para>
