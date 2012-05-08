@@ -159,3 +159,11 @@ htmlhelp:
 	xsltproc stylesheets/pg-chm.xsl postgres.xml
 	mv *.h?? chm
 	tar cvfz $(BASEDIR)/$(HTM_OUTPUT)/$(CHM_OUTPUT) chm
+
+sphinx: clean
+	echo "Build sphinx file"
+	mkdir -p ./build/rst/
+	java -jar ./stylesheets/rst/saxon9he.jar -s postgres.xml -o ./build/rst/index.rst ./stylesheets/rst/global.xsl chunk-output=true
+
+clean: 
+	rm -rf ./build/*
