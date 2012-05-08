@@ -1532,11 +1532,18 @@ block : bloc vidé,  dirty bloc : bloc à vider ?
        </para>
        <para>
         Au niveau <literal>minimal</literal>, certains enregistrements dans
-        les journaux de transactions peuvent être évités, par exemple pour des
-        commandes <command>CREATE INDEX</command>, <command>CLUSTER</command>
-        et <command>COPY</command> sur une table qui a été créée ou tronquée
-        dans la même transaction (voir <xref linkend="populate-pitr"/>). Mais,
-        du coup, les journaux au niveau minimal ne contiennent pas suffisamment
+        les journaux de transactions peuvent être évités, ce qui peut
+        rendre ces opérations plus rapides (voir <xref
+        linkend="populate-pitr"/>). Les opérations concernées par cette
+        optimisation incluent&nbsp;:
+        <simplelist>
+         <member><command>CREATE TABLE AS</command></member>
+         <member><command>CREATE INDEX</command></member>
+         <member><command>CLUSTER</command></member>
+         <member><command>COPY</command> dans des tables qui ont été créées ou
+         tronquées dans la même transaction</member>
+        </simplelist>
+        Mais, du coup, les journaux au niveau minimal ne contiennent pas suffisamment
         d'informations pour reconstruire les données à partir d'une sauvegarde
         de base et des journaux de transactions. Donc, les niveaux
         <literal>archive</literal> ou <literal>hot_standby</literal> doivent
@@ -1624,7 +1631,7 @@ block : bloc vidé,  dirty bloc : bloc à vider ?
      </varlistentry>
      
      <varlistentry id="guc-synchronous-commit" xreflabel="synchronous_commit">
-      <term><varname>synchronous_commit</varname> (<type>boolean</type>)</term>
+      <term><varname>synchronous_commit</varname> (<type>enum</type>)</term>
       <listitem>
        <indexterm> 
         <primary>paramètre de configuration <varname>synchronous_commit</varname></primary> 
@@ -1766,12 +1773,12 @@ block : bloc vidé,  dirty bloc : bloc à vider ?
        </para>
 
        <para>
-	La désactivation de ce paramètre accélère les opérations normales,
-	mais peut aboutir either unrecoverable data corruption, or silent
-        data corruption, after a system failure. Les risques
-	sont similaires à la désactivation de <varname>fsync</varname>, bien
-	que moindres, and it should be turned off
-        only based on the same circumstances recommended for that parameter.
+	    La désactivation de ce paramètre accélère les opérations normales, mais
+	    peut aboutir soit à une corruption impossible à corriger soit à une
+        corruption silencieuse, après un échec système. Les risques sont
+        similaires à la désactivation de <varname>fsync</varname>, bien que
+        moindres. Sa désactivation devrait se faire en se basant sur les mêmes
+        recommandations que cet autre paramètre.
        </para>
 
        <para>
@@ -2262,7 +2269,7 @@ block : bloc vidé,  dirty bloc : bloc à vider ?
         des données. Le standby synchrone est le premier serveur standby
         nommé dans cette liste, qui est à la fois connecté et qui récupère
         les données en temps réel (comme indiqué par l'état
-        <literal>STREAMING</literal> dans la vue
+        <literal>streaming</literal> dans la vue
         <link linkend="monitoring-stats-views-table">
         <literal>pg_stat_replication</literal></link>). Les autres
         serveurs standards apparaissant plus tard dans cette liste
@@ -3268,7 +3275,11 @@ local0.*    /var/log/postgresql
 	   indiquer des noms de fichiers horodatés.  (S'il y a des
 	   échappements <literal>%</literal> dépendant des fuseaux horaires, le
 	   calcul se fait dans le fuseau précisé par
-	   <xref linkend="guc-log-timezone"/>.)
+	   <xref linkend="guc-log-timezone"/>.) Les échappements
+	   <literal>%</literal> supportés sont similaires à ceux listés dans
+	   la spécification de <ulink
+       url="http://pubs.opengroup.org/onlinepubs/009695399/functions/strftime.html">strftime</ulink>
+       par l'Open Group.
         Notez que la fonction <systemitem>strftime</systemitem> du système n'est
         pas utilisée directement, ce qui entraîne que les extensions spécifiques
         à la plateforme (non-standard) ne fonctionneront pas.
@@ -5532,7 +5543,8 @@ SET XML OPTION { DOCUMENT | CONTENT };
        </para>
 
        <para>
-        Contrairement à <varname>local_preload_libraries</varname>, il n'y a pas de gain de performance à charger une bibliothèque au
+        Contrairement à <xref linkend="guc-shared-preload-libraries"/>,
+        il n'y a pas de gain de performance à charger une bibliothèque au
 	démarrage d'une session ou à sa première utilisation. Le but de cette fonctionnalité
 	est d'autoriser le chargement de bibliothèques de débogage ou de mesure
 	de performance dans certaines sessions spécifiques sans commande
@@ -6569,16 +6581,7 @@ LOG:  CleanUpLock: deleting: lock(0xb7acd844) id(24688,24696,0,0,0,1)
        <para>
         Si activé, génère des informations à propos de l'utilisation de verrous
         utilisateurs. La sortie est la même que pour <symbol>trace_locks</symbol>,
-        mais restreinte aux verrous utilisateurs.
-       </para>
-       <para>
-        Les verrous utilisateurs ont été supprimés depuis PostgreSQL version 8.2.
-        Cette option n'a aucun effet maintenant.
-       </para>
-       <para>
-        Ce paramètre n'est disponible que si la macro <symbol>LOCK_DEBUG</symbol>
-        a été définie quand <productname>PostgreSQL</productname> a été
-        compilé.
+        mais restreinte aux verrous informatifs.
        </para>
       </listitem>
      </varlistentry>

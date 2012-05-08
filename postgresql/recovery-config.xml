@@ -11,8 +11,9 @@
   </indexterm>
 
    <para>
+	<indexterm><primary>recovery.conf</primary></indexterm>
     Ce chapitre décrit les paramètres disponibles dans le fichier
-    <filename>recovery.conf</filename>  Ils ne s'appliquent que pendant la
+    <filename>recovery.conf</filename>. Ils ne s'appliquent que pendant la
     durée de la récupération. Ils doivent être repositionnés pour toute récupération
     ultérieure que vous souhaiterez effectuer. Ils ne peuvent pas être modifiés
     une fois que la récupération a commencé.
@@ -115,7 +116,7 @@ restore_command = 'copy "C:\\server\\archivedir\\%f" "%p"'  # Windows
      </varlistentry>
 
      <varlistentry id="recovery-end-command" xreflabel="recovery_end_command">
-      <term><varname>recovery_end_command</varname> (<type>chaîne de caractèrse</type>)</term>
+      <term><varname>recovery_end_command</varname> (<type>chaîne de caractéres</type>)</term>
       <indexterm>
         <primary>paramètre de récupération <varname>recovery_end_command</varname></primary>
       </indexterm>
@@ -334,7 +335,7 @@ restore_command = 'copy "C:\\server\\archivedir\\%f" "%p"'  # Windows
           serveur primaire, ainsi que le numéro de port si ce n'est pas le même
           que celui par défaut du serveur de standby.
           Spécifiez aussi un nom d'utilisateur correspondant à un rôle qui
-          a les privilèges  <literal>SUPERUSER</literal> et <literal>LOGIN</literal>
+          a les privilèges  <literal>REPLICATION</literal> et <literal>LOGIN</literal>
           sur le primaire (voir <xref linkend="streaming-replication-authentication" />).
           Un mot de passe devra aussi être fourni, si le primaire demande une
           authentification par mot de passe. Il peut être fourni

@@ -1552,7 +1552,8 @@ both</optional>
        <entry><type>text</type></entry>
        <entry>
          Formate une chaîne de caractères. Cette fonction est similaire à la
-         fonction C <function>sprintf</function> mais seules les conversions
+         fonction C <function>sprintf</function> mais seules les
+         spécifications de conversions
          suivantes sont acceptées&nbsp;: <literal>%s</literal> utilise
          l'argument correspondant comme une chaîne de caractères&nbsp;;
          <literal>%I</literal> réalise un échappement de son argument en
@@ -1620,7 +1621,7 @@ both</optional>
       </row>
 
       <row>
-       <entry><literal><function>length</function>(<parameter>chaîne</parameter><type>bytea</type>,
+       <entry><literal><function>length</function>(<parameter>chaîne</parameter> <type>bytea</type>,
         <parameter>encodage</parameter> <type>nom</type> )</literal></entry>
        <entry><type>int</type></entry>
        <entry>
@@ -7138,7 +7139,10 @@ SELECT EXTRACT(SECOND FROM TIME '17:12:28.5');
        <para>
         Le décalage du fuseau horaire depuis UTC, mesuré en secondes. Les
         valeurs positives correspondent aux fuseaux horaires à l'est d'UTC, les 
-        valeurs négatives à l'ouest d'UTC.
+        valeurs négatives à l'ouest d'UTC. (Techniquement,
+        <productname>PostgreSQL</productname> utilise
+        <acronym>UT1</acronym> plutôt que UTC car les secondes
+        intercalaires ne sont pas gérées.) 
        </para>
       </listitem>
      </varlistentry>

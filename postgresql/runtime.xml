@@ -280,7 +280,8 @@ façon la plus simple de lancer le serveur est&nbsp;:
    démarrage. La plupart des systèmes ont un fichier
    <filename>/etc/rc.local</filename> ou
    <filename>/etc/rc.d/rc.local</filename>. D'autres utilisent les répertoires
-   <filename>rc.d</filename>. Quoi que vous fassiez, le serveur doit être exécuté par le
+   <filename>init.d</filename> ou <filename>rc.d</filename>. Quoi que
+   vous fassiez, le serveur doit être exécuté par le
    compte utilisateur <productname>PostgreSQL</productname> <emphasis>et non pas
    par root</emphasis> ou tout autre utilisateur. Donc, vous devriez
    probablement former vos commandes en utilisant <literal>su -c '...' 
@@ -322,7 +323,8 @@ fi</programlisting>
       Sur les systèmes <productname>linux</productname>, soit vous ajoutez
       <indexterm><primary>linux</primary><secondary>script de lancement</secondary></indexterm>
 <programlisting>/usr/local/pgsql/bin/pg_ctl start -l journaux_trace -D /usr/local/pgsql/data</programlisting>
-      à <filename>/etc/rc.d/rc.local</filename> soit vous jetez un &oelig;il à
+      à <filename>/etc/rc.d/rc.local</filename> ou
+      <filename>/etc/rc.local</filename> soit vous jetez un &oelig;il à
       <filename>contrib/start-scripts/linux</filename> dans le répertoire des
       sources de <productname>PostgreSQL</productname>.
      </para>
@@ -590,13 +592,13 @@ DETAIL:  Failed system call was semget(5440126, 17, 03600).</screen>
         <entry><varname>semmni</varname></entry>
         <entry>nombre maximum d'identifiants de sémaphores (c'est-à-dire
          d'ensembles)</entry>
- <entry>au moins <literal>ceil((max_connections + autovacuum_max_workers) / 16)</literal></entry>
+        <entry>au moins <literal>ceil((max_connections + autovacuum_max_workers + 4) / 16)</literal></entry>
        </row>
 
        <row>
         <entry><varname>semmns</varname></entry>
         <entry>nombre maximum de sémaphores répartis dans le système</entry>
-	<entry><literal>ceil((max_connections + autovacuum_max_workers) / 16) * 17</literal> plus la place
+        <entry><literal>ceil((max_connections + autovacuum_max_workers = 4) / 16) * 17</literal> plus la place
          pour les autres applications</entry>
        </row>
 
@@ -677,7 +679,7 @@ DETAIL:  Failed system call was semget(5440126, 17, 03600).</screen>
     linkend="sysvipc-parameters"/>). Le paramètre <varname>semmni</varname> détermine la
     limite sur le nombre d'ensembles de sémaphores qui peuvent exister sur le
     système à un instant précis. Donc, ce paramètre doit être au moins égal à
-    <literal>ceil((max_connections + autovacuum_max_workers) / 16)</literal>. Baisser le nombre de connexions
+    <literal>ceil((max_connections + autovacuum_max_workers + 4) / 16)</literal>. Baisser le nombre de connexions
     autorisées est un contournement temporaire pour les échecs qui sont
     habituellement indiqués par le message <quote>no space left on
     device</quote>, à partir de la fonction <function>semget</function>.
@@ -825,16 +827,46 @@ options "SEMMNS=240"</programlisting>
        </para>
 
        <para>
-        Les <systemitem class="osname">freebsd</systemitem>, avant la 4.0, fonctionnent
-	comme <systemitem class="osname">netbsd</systemitem> et <systemitem class="osname">
-        OpenBSD</systemitem> (voir ci-dessous).
+        Les <systemitem class="osname">FreeBSD</systemitem>, avant la 4.0, fonctionnent
+	    comme <systemitem class="osname">OpenBSD</systemitem> (voir ci-dessous).
        </para>
       </listitem>
      </varlistentry>
 
      <varlistentry>
-      <term><systemitem class="osname">netbsd</systemitem></term>
-      <term><systemitem class="osname">openbsd</systemitem></term>
+      <term><systemitem class="osname">NetBSD</systemitem></term>
+      <indexterm><primary>netbsd</primary><secondary>configuration ipc</secondary></indexterm>
+      <listitem>
+       <para>
+        Avec <systemitem class="osname">NetBSD</systemitem> 5.0 et
+        ultérieur, les paramètres IPC peuvent être ajustés en utilisant
+        <command>sysctl</command>. Par exemple&nbsp;:
+<screen>
+<prompt>$</prompt> <userinput>sysctl -w kern.ipc.shmmax=16777216</userinput>
+</screen>
+        Pour que ce paramètrage persiste après un redémarrage, modifiez
+        le fichier <filename>/etc/sysctl.conf</filename>.
+       </para>
+
+       <para>
+        Vous pourriez aussi vouloir configurer votre noyau pour verrouiller
+        la mémoire partagée en RAM et l'empêcher d'être mise dans le swap.
+        Cela peut se faire en utilisant le paramètre
+        <literal>kern.ipc.shm_use_phys</literal> de <command>sysctl</command>.
+       </para>
+
+       <para>
+        Les versions de <systemitem class="osname">NetBSD</systemitem>
+        antérieures à la 5.0 fonctionnent comme <systemitem
+        class="osname">OpenBSD</systemitem> (voir ci-dessous), sauf que
+        les paramètres doivent être configurés avec le mot clé
+        <literal>options</literal>, et non pas <literal>option</literal>.
+       </para>
+      </listitem>
+     </varlistentry>
+
+     <varlistentry>
+      <term><systemitem class="osname">OpenBSD</systemitem></term>
       <listitem>
       <indexterm><primary>netbsd</primary><secondary>ipc configuration</secondary></indexterm>
       <indexterm><primary>openbsd</primary><secondary>configuration ipc</secondary></indexterm>
@@ -843,18 +875,16 @@ options "SEMMNS=240"</programlisting>
         activées à la compilation du noyau (ils le sont par défaut). La taille
         maximum de mémoire partagée est déterminée par l'option
         <varname>shmmaxpgs</varname> (en pages). Ce qui suit montre un exemple de
-        l'initialisation des différents paramètres  on
-        <systemitem class="osname">NetBSD</systemitem> (<systemitem
-	class="osname">OpenBSD</systemitem> utilise <literal>option</literal> à la place)&nbsp;:
-<programlisting>options         SYSVSHM
-options         SHMMAXPGS=4096
-options         SHMSEG=256
+        l'initialisation des différents paramètres&nbsp;:
+<programlisting>option        SYSVSHM
+option        SHMMAXPGS=4096
+option        SHMSEG=256
 
-options         SYSVSEM
-options         SEMMNI=256
-options         SEMMNS=512
-options         SEMMNU=256
-options         SEMMAP=256</programlisting>
+option        SYSVSEM
+option        SEMMNI=256
+option        SEMMNS=512
+option        SEMMNU=256
+option        SEMMAP=256</programlisting>
        </para>
        <para>
         Vous pourriez aussi vouloir configurer votre noyau pour verrouiller la
@@ -935,9 +965,9 @@ options         SEMMAP=256</programlisting>
 
 
      <varlistentry>
-      <term><systemitem class="osname">macos x</systemitem></term>
+      <term><systemitem class="osname">Mac OS X</systemitem></term>
       <listitem>
-      <indexterm><primary>macos x</primary><secondary>configuration ipc</secondary></indexterm>
+      <indexterm><primary>Mac OS X</primary><secondary>configuration ipc</secondary></indexterm>
        <para>
         La méthode recommandée pour configurer la mémoire partagée sous OS X
         est de créer un fichier nommé <filename>/etc/sysctl.conf</filename>
@@ -1336,7 +1366,7 @@ echo -17 > /proc/self/oom_adj
     de démarrage, exécuté par root, est le meilleur endroit où placer ce code.
     Si vous le faites, vous pourriez aussi souhaiter construire
     <productname>PostgreSQL</productname> avec l'option
-    <literal>-DLINUX_OOM_ADJ=0</literal> ajoutée à <varname>CFLAGS</varname>.
+    <literal>-DLINUX_OOM_ADJ=0</literal> ajoutée à <varname>CPPFLAGS</varname>.
     Cela fera en sorte que les processus enfants de postmaster seront exécutés
     avec la valeur <varname>oom_adj</varname> normale de zéro, pour que OOM
     puisse les cibler si nécessaire.
@@ -2016,7 +2046,7 @@ pg_dumpall -p 5432 | psql -d postgres -p 5433
    <acronym>ssl</acronym> activé en activant <xref linkend="guc-ssl"/> dans
    <filename>PostgreSQL.conf</filename>. Le serveur écoutera les deux
    connexions, standard et <acronym>SSL</acronym> sur le même port TCP, et
-   négotiera avec tout client l'utilisation de <acronym>SSL</acronym>. Par
+   négociera avec tout client l'utilisation de <acronym>SSL</acronym>. Par
    défaut, le client peut choisir cette option&nbsp;; voir <xref
    linkend="auth-pg-hba-conf"/> sur la façon de configurer le serveur pour
    réclamer l'utilisation de <acronym>SSL</acronym> pour certaines, voire
@@ -2069,7 +2099,7 @@ pg_dumpall -p 5432 | psql -d postgres -p 5433
 
   <para>
    Dans certains cas, le certificat du serveur peut être signé par une
-   autorité <quote>intermediaire</quote> de certificats, plutôt que par un
+   autorité <quote>intermédiaire</quote> de certificats, plutôt que par un
    qui soit directement de confiance par les clients. Pour utiliser un tel
    certificat, ajoutez le certificat de l'autorité signataire au fichier
    <filename>server.crt</filename>, puis le certificat de l'autorité parente,
