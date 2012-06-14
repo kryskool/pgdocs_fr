@@ -161,6 +161,14 @@ CREATE AGGREGATE <replaceable class="parameter">nom</replaceable> (
    than</quote> (NdT&nbsp;: plus grand que) d'une classe d'opérateur pour un
    index B-tree.
   </para>
+
+  <para>
+   Pour pouvoir créer une fonction d'agrégat, vous devez avoir le droit
+   <literal>USAGE</literal> sur le type des arguments, le type de l'état et le
+   type du code retour. Vous devez aussi voir le droit
+   <literal>EXECUTE</literal> sur la fonction de transition et la fonction
+   finale.
+  </para>
  </refsect1>
 
  <refsect1>

@@ -163,6 +163,18 @@ ces effets persistent au-delà du <command>PREPARE TRANSACTION</command> et ne s
  </refsect1>
 
  <refsect1>
+  <title>Compatibilité</title>
+
+  <para>
+   <command>PREPARE TRANSACTION</command> est une extension 
+   <productname>PostgreSQL</productname>.  Elle est conçue pour être utilisée 
+   par des systèmes extérieurs de gestion des transactions. Certains de 
+   ceux-là sont couverts par des standards (tels que X/Open XA), 
+   mais la partie SQL de ces systèmes n'est pas standardisée.
+  </para>
+ </refsect1>
+
+ <refsect1>
   <title>Voir aussi</title>
 
   <simplelist type="inline">

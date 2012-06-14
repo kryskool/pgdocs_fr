@@ -18,7 +18,7 @@
  <refsynopsisdiv>
 <synopsis>
 CREATE FOREIGN TABLE [ IF NOT EXISTS ] <replaceable class="PARAMETER">table_name</replaceable> ( [
-  { <replaceable class="PARAMETER">column_name</replaceable> <replaceable class="PARAMETER">data_type</replaceable> [ NULL | NOT NULL ] }
+  { <replaceable class="PARAMETER">column_name</replaceable> <replaceable class="PARAMETER">data_type</replaceable> [ OPTIONS ( <replaceable class="PARAMETER">option</replaceable> '<replaceable class="PARAMETER">value</replaceable>' [, ... ] ) ] [ NULL | NOT NULL ] }
     [, ... ]
 ] )
   SERVER <replaceable class="parameter">server_name</replaceable>
@@ -49,6 +49,11 @@ CREATE FOREIGN TABLE [ IF NOT EXISTS ] <replaceable class="PARAMETER">table_name
    un type de donnée qui représente le type composite correspondant à une ligne 
    de la table distante. En conséquence, une table distante ne peut pas avoir
    le même nom qu'un type de donnée existant dans le même schéma.
+  </para>
+
+  <para>
+   Pour avoir le droits de créer une table, vous devez avoir le droit <literal>USAGE</literal>
+   sur tous les types des colonnes.
   </para>
  </refsect1>
 
@@ -136,11 +141,11 @@ CREATE FOREIGN TABLE [ IF NOT EXISTS ] <replaceable class="PARAMETER">table_name
     <term><literal>OPTIONS ( <replaceable class="PARAMETER">option</replaceable> '<replaceable class="PARAMETER">value</replaceable>' [, ...] )</literal></term>
     <listitem>
      <para>
-	  Options qui peuvent être associés à la nouvelle table distante.
+	  Options qui peuvent être associés à la nouvelle table distante ou à une de ses colonnes.
 	  Les noms des options autorisées et leurs valeurs sont spécifiques
 	  à chaque wrapper de données distantes et sont validées en utilisant
-	  la fonction de validation du wrapper de données distantes. Le nom
-	  de chaque option doit être unique.
+	  la fonction de validation du wrapper de données distantes. L'utilisation répétée de la même option
+	  n'est pas autorisée (bien qu'il soit possible qu'une option de table et de colonne ait le même nom).
      </para>
     </listitem>
    </varlistentry>

@@ -30,7 +30,7 @@ ALTER FUNCTION <replaceable>nom</replaceable> ( [ [ <replaceable class="paramete
 <phrase>où <replaceable class="parameter">action</replaceable> peut être&nbsp;:</phrase>
 
     CALLED ON NULL INPUT | RETURNS NULL ON NULL INPUT | STRICT
-    IMMUTABLE | STABLE | VOLATILE
+    IMMUTABLE | STABLE | VOLATILE | [ NOT ] LEAKPROOF
     [ EXTERNAL ] SECURITY INVOKER | [ EXTERNAL ] SECURITY DEFINER
     COST <replaceable class="parameter">cout_execution</replaceable>
     ROWS <replaceable class="parameter">nb_lignes_resultat</replaceable>
@@ -196,7 +196,17 @@ ALTER FUNCTION <replaceable>nom</replaceable> ( [ [ <replaceable class="paramete
     </listitem>
    </varlistentry>
 
-    <varlistentry>
+   <varlistentry>
+    <term><literal>LEAKPROOF</literal></term>
+    <listitem>
+     <para>
+	  Indique si la fonction doit être considérée comme étant étanche (<foreignphrase>leakproof</foreignphrase>).
+	  Voir <xref linkend="sql-createfunction"/> pour plus d'informations.
+     </para>
+    </listitem>
+   </varlistentry>
+
+   <varlistentry>
      <term><literal>COST</literal> <replaceable class="parameter">cout_execution</replaceable></term>
 
      <listitem>

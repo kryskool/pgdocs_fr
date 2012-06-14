@@ -60,6 +60,11 @@
    table.
   </para>
 
+  <para>
+   Pour pouvoir créer un domaine, vous devez avoir le droit <literal>USAGE</literal>
+   sur le type sous-jacent.
+  </para>
+
  </refsect1>
 
  <refsect1>

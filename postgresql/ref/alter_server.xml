@@ -25,6 +25,7 @@
 ALTER SERVER <replaceable class="parameter">nom_serveur</replaceable> [ VERSION '<replaceable class="parameter">nouvelle_version</replaceable>' ]
     [ OPTIONS ( [ ADD | SET | DROP ] <replaceable class="PARAMETER">option</replaceable> ['<replaceable class="PARAMETER">valeur</replaceable>'] [, ... ] ) ]
 ALTER SERVER <replaceable class="PARAMETER">nom_serveur</replaceable> OWNER TO <replaceable>nouveau_propriétaire</replaceable>
+ALTER SERVER <replaceable class="PARAMETER">nom_serveur</replaceable> RENAME TO <replaceable>nouveau_nom</replaceable>
 </synopsis>
  </refsynopsisdiv>
 
@@ -83,6 +84,24 @@ ALTER SERVER <replaceable class="PARAMETER">nom_serveur</replaceable> OWNER TO <
      </para>
     </listitem>
    </varlistentry>
+
+   <varlistentry>
+    <term><replaceable class="PARAMETER">nouveau_propriétaire</replaceable></term>
+    <listitem>
+     <para>
+	  Le nom du nouveau propriétaire du serveur distant.
+     </para>
+    </listitem>
+   </varlistentry>
+
+   <varlistentry>
+    <term><replaceable class="parameter">nouveau_nom</replaceable></term>
+    <listitem>
+     <para>
+	  Le nouveau nom du serveur distant.
+     </para>
+    </listitem>
+   </varlistentry>
   </variablelist>
  </refsect1>
 
@@ -111,6 +130,8 @@ ALTER SERVER foo VERSION '8.4' OPTIONS (SET host 'baz');
 
   <para>
    <command>ALTER SERVER</command> est conforme à ISO/IEC 9075-9 (SQL/MED).
+   Les clauses <literal>OWNER TO</literal> et <literal>RENAME TO</literal> sont
+   des extensions PostgreSQL.
   </para>
  </refsect1>
 
