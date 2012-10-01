@@ -18,10 +18,10 @@
  </refnamediv>
 
  <refsynopsisdiv>
-<synopsis>CREATE [ UNIQUE ] INDEX [ CONCURRENTLY ] [ <replaceable class="parameter">nom</replaceable> ] ON <replaceable class="parameter">table</replaceable> [ USING <replaceable class="parameter">méthode</replaceable> ]
-    ( { <replaceable class="parameter">colonne</replaceable> | ( <replaceable class="parameter">expression</replaceable> ) } [ COLLATE <replaceable class="parameter">collation</replaceable> ] [ <replaceable class="parameter">classeop</replaceable> ] [ ASC | DESC ] [ NULLS { FIRST | LAST } ] [, ...] )
+<synopsis>CREATE [ UNIQUE ] INDEX [ CONCURRENTLY ] [ <replaceable class="parameter">nom</replaceable> ] ON <replaceable class="parameter">nom_table</replaceable> [ USING <replaceable class="parameter">méthode</replaceable> ]
+    ( { <replaceable class="parameter">nom_colonne</replaceable> | ( <replaceable class="parameter">expression</replaceable> ) } [ COLLATE <replaceable class="parameter">collation</replaceable> ] [ <replaceable class="parameter">classeop</replaceable> ] [ ASC | DESC ] [ NULLS { FIRST | LAST } ] [, ...] )
     [ WITH ( <replaceable class="parameter">parametre_stockage</replaceable> = <replaceable class="parameter">valeur</replaceable> [, ... ] ) ]
-    [ TABLESPACE <replaceable class="parameter">espacelogique</replaceable> ]
+    [ TABLESPACE <replaceable class="parameter">nom_espacelogique</replaceable> ]
     [ WHERE <replaceable class="parameter">prédicat</replaceable> ]
 </synopsis>
  </refsynopsisdiv>
@@ -144,7 +144,7 @@
      </varlistentry>
 
      <varlistentry>
-      <term><replaceable class="parameter">table</replaceable></term>
+      <term><replaceable class="parameter">nom_table</replaceable></term>
       <listitem>
        <para>
 	Le nom de la table à indexer (éventuellement qualifié du nom du schéma).
@@ -165,7 +165,7 @@
      </varlistentry>
 
      <varlistentry>
-      <term><replaceable class="parameter">colonne</replaceable></term>
+      <term><replaceable class="parameter">nom_colonne</replaceable></term>
       <listitem>
        <para>
 	Le nom d'une colonne de la table.
@@ -261,7 +261,7 @@
      </varlistentry>
 
      <varlistentry>
-      <term><replaceable class="parameter">espacelogique</replaceable></term>
+      <term><replaceable class="parameter">nom_espacelogique</replaceable></term>
       <listitem>
        <para>
         Le tablespace dans lequel créer l'index. S'il n'est pas précisé,
@@ -355,7 +355,7 @@
    </variablelist>
  
    <para>
-    GiST indexes additionally accept this parameter:
+    Les index GiST acceptent en plus ce paramètre&nbsp;:
    </para>
 
    <variablelist>
@@ -363,11 +363,13 @@
     <term><literal>BUFFERING</literal></term>
     <listitem>
     <para>
-     Determines whether the buffering build technique described in
-     <xref linkend="gist-buffering-build"/> is used to build the index. With
-     <literal>OFF</literal> it is disabled, with <literal>ON</literal> it is enabled, and
-     with <literal>AUTO</literal> it is initially disabled, but turned on
-     on-the-fly once the index size reaches <xref linkend="guc-effective-cache-size"/>. The default is <literal>AUTO</literal>.
+     Détermine si la technique de construction avec tampons décrite dans
+     <xref linkend="gist-buffering-build"/> est utilisée pour construire l'index.
+     À <literal>OFF</literal>, cette technique n'est pas utilisée. À
+     <literal>ON</literal>, elle est utilisée. À <literal>AUTO</literal>, elle
+     est au départ désactivée mais elle est activée une fois que la taille de
+     l'index atteint <xref linkend="guc-effective-cache-size"/>. La valeur
+     par défaut est <literal>AUTO</literal>.
     </para>
     </listitem>
    </varlistentry>
@@ -415,18 +417,14 @@
 
    <para>
     Dans la construction en parallèle d'un index, l'index est enregistré
-    dans le catalogue système dans une transaction, puis les deux
-    parcours de table interviennent dans une deuxième et troisième
-    transactions. Toutes les transactions actives au début du second
-    parcours de la table ont le potentiel de bloquer une création d'index
-    concurrente jusqu'à leur fin, pas seulement les transactions qui
-    utilisent déjà la table. Lors de la vérification des transactions
-    qui pourraient utiliser l'index original, la création concurrente
-    d'index va continuer son travail en obtenant des verrous partagés
-    sur les identifiants de transactions virtuelles des anciennes
-    transactions pouvant potentiellement interférer avec la création
-    d'index. Ces verrous permettent d'attendre la fin des transactions
-    en question.
+    dans les catalogues systèmes dans une transaction, puis les deux
+    parcours de table interviennent dans deux transactions supplémentaires.
+    Toute transaction active au début du second parcours de la table peut
+    bloquer la création concurrente de l'index jusqu'à sa fin, y compris
+    pour les transactions qui référencent seulement la table après que le
+    deuxième parcours de table commence. La création parallèle d'index attend
+    en série que chaque ancienne transaction se termine en utilisant la
+    méthode soulignée dans la section <xref linkend="view-pg-locks"/>.
    </para>
 
    <para>

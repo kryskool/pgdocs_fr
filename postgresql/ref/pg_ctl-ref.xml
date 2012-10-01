@@ -210,8 +210,8 @@
    Le mode <option>status</option> vérifie si un serveur est toujours en cours
    d'exécution sur le répertoire de données indiqué. Si c'est le cas, le
    <acronym>PID</acronym> et les options en ligne de commande utilisées lors de
-   son démarrage sont affichés. If the server is not running, the process returns an
-   exit status of 3.
+   son démarrage sont affichés. Si le serveur n'est pas en cours d'exécution,
+   le processus retourne une valeur de sortie de 3.
   </para>
 
   <para>
@@ -370,6 +370,16 @@
      </varlistentry>
 
      <varlistentry>
+      <term><option>-V</option></term>
+      <term><option>--version</option></term>
+       <listitem>
+        <para>
+         Affiche la version de <application>pg_ctl</application>, puis quitte.
+        </para>
+       </listitem>
+     </varlistentry>
+
+     <varlistentry>
       <term><option>-w</option></term>
       <listitem>
        <para>
@@ -391,6 +401,17 @@
        <para>
 	Ne pas attendre la fin du démarrage ou de l'arrêt. C'est la
 	valeur par défaut pour les démarrages et redémarrages.
+       </para>
+      </listitem>
+     </varlistentry>
+
+     <varlistentry>
+      <term><option>-?</option></term>
+      <term><option>--help</option></term>
+      <listitem>
+       <para>
+        Affiche de l'aide sur les arguments en ligne de commande de
+        <application>pg_ctl</application>, puis quitte.
        </para>
       </listitem>
      </varlistentry>

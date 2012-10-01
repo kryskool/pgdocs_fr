@@ -13,7 +13,8 @@
 
  <refnamediv>
   <refname>vacuumlo</refname>
-  <refpurpose>remove orphaned large objects from a <productname>PostgreSQL</productname> database</refpurpose>
+  <refpurpose>supprimer les Large Objects orphelins à partir d'une base de
+    données <productname>PostgreSQL</productname></refpurpose>
  </refnamediv>
  
   <indexterm zone="vacuumlo">
@@ -24,7 +25,7 @@
   <cmdsynopsis>
    <command>vacuumlo</command>
    <arg choice="opt" rep="repeat"><replaceable>option</replaceable></arg>
-   <arg choice="plain" rep="repeat"><replaceable>dbname</replaceable></arg>
+   <arg choice="plain" rep="repeat"><replaceable>nom_base</replaceable></arg>
   </cmdsynopsis>
  </refsynopsisdiv>
 
@@ -55,23 +56,21 @@
  <refsect1>
   <title>Options</title>
  
+  <para>
+   <application>vacuumlo</application> accepte les arguments suivants en ligne
+   de commande&nbsp;:
+ 
   <variablelist>
    <varlistentry>
-    <term><option>-h</option> <replaceable>hostname</replaceable></term>
-    <listitem>
-     <para>Database server's host.</para>
-    </listitem>
-   </varlistentry>
-
-   <varlistentry>
-    <term><option>-l</option> <replaceable>limit</replaceable></term>
+    <term><option>-l</option> <replaceable>limite</replaceable></term>
     <listitem>
      <para>
-      Remove no more than <replaceable>limit</replaceable> large objects per
-      transaction (default 1000).  Since the server acquires a lock per LO
-      removed, removing too many LOs in one transaction risks exceeding
-      <xref linkend="guc-max-locks-per-transaction"/>.  Set the limit to
-      zero if you want all removals done in a single transaction.
+      Supprime pas plus que <replaceable>limite</replaceable> Large Objects par
+      transactions (par défaut 1000). Comme le serveur acquiert un verrou par
+      Large Object à supprimer, supprimer beaucoup de Large Objects en une seule
+      transaction risque de dépasser la limite imposée par le paramètre
+      <xref linkend="guc-max-locks-per-transaction"/>. Configurez la limite à
+      zéro si vous voulez tout supprimer en une seule transaction.
      </para>
     </listitem>
    </varlistentry>
@@ -84,9 +83,51 @@
    </varlistentry>
 
    <varlistentry>
+    <term><option>-v</option></term>
+    <listitem>
+     <para>Écrit de nombreux messages de progression.</para>
+    </listitem>
+   </varlistentry>
+
+   <varlistentry>
+    <term><option>-V</option></term>
+    <term><option>--version</option></term>
+    <listitem>
+     <para>
+      Affiche la version de <application>vacuumlo</application>, puis quitte.
+     </para>
+    </listitem>
+   </varlistentry>
+
+   <varlistentry>
+    <term><option>-?</option></term>
+    <term><option>--help</option></term>
+    <listitem>
+     <para>
+      Affiche l'aide sur les arguments en ligne de commande de
+      <application>vacuumlo</application>, puis quitte.
+     </para>
+    </listitem>
+   </varlistentry>
+  </variablelist>
+  </para>
+
+  <para>
+   <application>vacuumlo</application> accepte aussi les arguments en ligne de
+   commande pour les paramètres de connexion&nbsp;:
+
+  <variablelist>
+   <varlistentry>
+    <term><option>-h</option> <replaceable>nom_hôte</replaceable></term>
+    <listitem>
+     <para>Hôte du serveur de la base.</para>
+    </listitem>
+   </varlistentry>
+
+   <varlistentry>
     <term><option>-p</option> <replaceable>port</replaceable></term>
     <listitem>
-     <para>Database server's port.</para>
+     <para>Port du serveur.</para>
     </listitem>
    </varlistentry>
 
@@ -94,13 +135,6 @@
     <term><option>-U</option> <replaceable>nom_utilisateur</replaceable></term>
     <listitem>
      <para>Nom d'utilisateur pour la connexion.</para>
-    </listitem>
-   </varlistentry>
-
-   <varlistentry>
-    <term><option>-v</option></term>
-    <listitem>
-     <para>Write a lot of progress messages.</para>
     </listitem>
    </varlistentry>
 
@@ -122,36 +156,40 @@
     <term><option>-W</option></term>
     <listitem>
      <para>
-        Force <application>vacuumlo</application> à demander un mot de passe
-	avant la connexion à une base de données.
-       </para>
+      Force <application>vacuumlo</application> à demander un mot de passe
+      avant la connexion à une base de données.
+     </para>
 
-       <para>
-        Cette option n'est jamais obligatoire car
-	<application>vacuumlo</application> demandera automatiquement un
-	mot de passe si le serveur exige une authentification par mot de
-	passe. Néanmoins, <application>vacuumlo</application> perdra une
-	tentative de connexion pour trouver que le serveur veut un mot de
-	passe. Dans certains cas, il est préférable d'ajouter l'option
-        <option>-W</option> pour éviter la tentative de connexion.
+     <para>
+      Cette option n'est jamais obligatoire car
+      <application>vacuumlo</application> demandera automatiquement un mot de
+      passe si le serveur exige une authentification par mot de passe.
+      Néanmoins, <application>vacuumlo</application> perdra une tentative de
+      connexion pour trouver que le serveur veut un mot de passe. Dans certains
+      cas, il est préférable d'ajouter l'option <option>-W</option> pour éviter
+      la tentative de connexion.
      </para>
     </listitem>
    </varlistentry>
   </variablelist>
+  </para>
+
  </refsect1>
 
  <refsect1>
   <title>Notes</title>
  
    <para>
-   <application>vacuumlo</application> works by the following method:
-   First, <application>vacuumlo</application> builds a temporary table which contains all
-   of the OIDs of the large objects in the selected database.  It then scans
-   through all columns in the database that are of type
-   <type>oid</type> or <type>lo</type>, and removes matching entries from the temporary
-   table.  (Note: Only types with these names are considered; in particular,
-   domains over them are not considered.)  The remaining entries in the
-   temporary table identify orphaned LOs.  These are removed.
+   <application>vacuumlo</application> fonctionne avec la méthode suivante.
+   Tout d'abord, <application>vacuumlo</application> construit une table
+   temporaire contenant tous les OID des Large Objects se trouvant dans la base
+   sélectionnée. Puis, il parcourt toutes les colonnes de la base qui sont du
+   type <type>oid</type> ou <type>lo</type>, et supprime toutes entrées
+   correspondant à la table temporaire. (Note&nbsp;: seuls sont pris en compte
+   les types de ces noms&nbsp;; en particulier, les domaines utilisant ces
+   types ne sont pas pris en compte.)  Les enregistrements restants dans la
+   table temporaires sont identifés comme les Large Objects orphelins. Ils sont
+   supprimés.
    </para>
  </refsect1>
  

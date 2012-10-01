@@ -479,16 +479,14 @@
    linkend="guc-checkpoint-timeout"/> secondes se sont
    écoulées.  Les paramètres par défaut sont respectivement de trois journaux
    et de 300 secondes (5 minutes).
-   In cases where little or no WAL has been written, checkpoints will be
-   skipped even if checkpoint_timeout has passed.  At least one new WAL segment
-   must have been created before an automatic checkpoint occurs.  The time
-   between checkpoints and when new WAL segments are created are not related
-   in any other way.  If file-based WAL shipping is being used and you want to
-   bound how often files are sent to standby server to reduce potential data
-   loss, you should adjust archive_timeout parameter rather than the checkpoint
-   parameters.
-   Il est également possible de forcer la création
-   d'un point de contrôle en utilisant la commande SQL
+   Dans les cas où aucune écriture n'est survenue dans les journaux de
+   transactions depuis le CHECKPOINT précédent, les CHECKPOINT suivants seront
+   ignorés même si le délai configuré avec checkpoint_timeout a été dépassé.
+   Si l'archivage de journaux de transactions est activé et que vous voulez une
+   limite basse sur la fréquence d'archivage pour limiter la perte potentielle
+   de données, vous devez configurer le paramètre archive_timeout plutôt que
+   les paramètres des CHECKPOINT. Il est également possible de forcer la
+   création d'un point de contrôle en utilisant la commande SQL
    <command>CHECKPOINT</command>.
   </para>
 
@@ -629,9 +627,7 @@
    à écrire lui-même sur disque.  Sur de tels systèmes, on devrait augmenter le
    nombre de tampons
    <acronym>WAL</acronym> en modifiant le paramètre de configuration <xref
-   linkend="guc-wal-buffers"/>. Par défaut, le nombre de tampons est de 8. 
-   Réhausser cette valeur augmente considérablement l'utilisation de la
-   mémoire partagée. Quand <xref linkend="guc-full-page-writes"/> est configuré
+   linkend="guc-wal-buffers"/>. Quand <xref linkend="guc-full-page-writes"/> est configuré
    et que le système est très occupé, configurer cette variable avec une valeur
    plus importante aide à avoir des temps de réponse plus réguliers
    lors de la période suivant chaque point de vérification.

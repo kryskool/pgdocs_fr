@@ -20,7 +20,7 @@
 <synopsis>ALTER TABLE [ IF EXISTS ] [ ONLY ] <replaceable class="parameter">nom</replaceable> [ * ]
     <replaceable class="parameter">action</replaceable> [, ... ]
 ALTER TABLE [ IF EXISTS ] [ ONLY ] <replaceable class="parameter">nom</replaceable> [ * ]
-    RENAME [ COLUMN ] <replaceable class="parameter">colonne</replaceable> TO <replaceable class="parameter">nouvelle_colonne</replaceable>
+    RENAME [ COLUMN ] <replaceable class="parameter">nom_colonne</replaceable> TO <replaceable class="parameter">nouveau_nom_colonne</replaceable>
 ALTER TABLE [ IF EXISTS ] [ ONLY ] <replaceable class="PARAMETER">nom</replaceable> [ * ]
     RENAME CONSTRAINT <replaceable class="PARAMETER">nom_contrainte</replaceable> TO <replaceable class="PARAMETER">nouveau_nom_contrainte</replaceable>
 ALTER TABLE [ IF EXISTS ] <replaceable class="parameter">nom</replaceable>
@@ -30,16 +30,16 @@ ALTER TABLE [ IF EXISTS ] <replaceable class="parameter">nom</replaceable>
 
 <phrase>où <replaceable class="parameter">action</replaceable> peut être&nbsp;:</phrase>
 
-    ADD [ COLUMN ] <replaceable class="PARAMETER">colonne</replaceable> <replaceable class="PARAMETER">type</replaceable> [ COLLATE <replaceable class="PARAMETER">collation</replaceable> ] [ <replaceable class="PARAMETER">contrainte_colonne</replaceable> [ ... ] ]
-    DROP [ COLUMN ] [ IF EXISTS ] <replaceable class="parameter">colonne</replaceable> [ RESTRICT | CASCADE ]
-    ALTER [ COLUMN ] <replaceable class="PARAMETER">colonne</replaceable> [ SET DATA ] TYPE <replaceable class="PARAMETER">type</replaceable> [ COLLATE <replaceable class="PARAMETER">collation</replaceable> ] [ USING <replaceable class="PARAMETER">expression</replaceable> ]
-    ALTER [ COLUMN ] <replaceable class="parameter">colonne</replaceable> SET DEFAULT <replaceable class="parameter">expression</replaceable>
-    ALTER [ COLUMN ] <replaceable class="parameter">colonne</replaceable> DROP DEFAULT
-    ALTER [ COLUMN ] <replaceable class="parameter">colonne</replaceable> { SET | DROP } NOT NULL
-    ALTER [ COLUMN ] <replaceable class="parameter">colonne</replaceable> SET STATISTICS <replaceable class="parameter">entier</replaceable>
-    ALTER [ COLUMN ] <replaceable class="parameter">column</replaceable> SET ( <replaceable class="parameter">option_attribut</replaceable> = <replaceable class="parameter">valeur</replaceable> [, ... ] )
-    ALTER [ COLUMN ] <replaceable class="parameter">column</replaceable> RESET ( <replaceable class="parameter">option_attribut</replaceable> [, ... ] )
-    ALTER [ COLUMN ] <replaceable class="parameter">colonne</replaceable> SET STORAGE { PLAIN | EXTERNAL | EXTENDED | MAIN }
+    ADD [ COLUMN ] <replaceable class="PARAMETER">nom_colonne</replaceable> <replaceable class="PARAMETER">type</replaceable> [ COLLATE <replaceable class="PARAMETER">collation</replaceable> ] [ <replaceable class="PARAMETER">contrainte_colonne</replaceable> [ ... ] ]
+    DROP [ COLUMN ] [ IF EXISTS ] <replaceable class="parameter">nom_colonne</replaceable> [ RESTRICT | CASCADE ]
+    ALTER [ COLUMN ] <replaceable class="PARAMETER">nom_colonne</replaceable> [ SET DATA ] TYPE <replaceable class="PARAMETER">type</replaceable> [ COLLATE <replaceable class="PARAMETER">collation</replaceable> ] [ USING <replaceable class="PARAMETER">expression</replaceable> ]
+    ALTER [ COLUMN ] <replaceable class="parameter">nom_colonne</replaceable> SET DEFAULT <replaceable class="parameter">expression</replaceable>
+    ALTER [ COLUMN ] <replaceable class="parameter">nom_colonne</replaceable> DROP DEFAULT
+    ALTER [ COLUMN ] <replaceable class="parameter">nom_colonne</replaceable> { SET | DROP } NOT NULL
+    ALTER [ COLUMN ] <replaceable class="parameter">nom_colonne</replaceable> SET STATISTICS <replaceable class="parameter">entier</replaceable>
+    ALTER [ COLUMN ] <replaceable class="parameter">nom_column</replaceable> SET ( <replaceable class="parameter">option_attribut</replaceable> = <replaceable class="parameter">valeur</replaceable> [, ... ] )
+    ALTER [ COLUMN ] <replaceable class="parameter">nom_column</replaceable> RESET ( <replaceable class="parameter">option_attribut</replaceable> [, ... ] )
+    ALTER [ COLUMN ] <replaceable class="parameter">nom_colonne</replaceable> SET STORAGE { PLAIN | EXTERNAL | EXTENDED | MAIN }
     ADD <replaceable class="PARAMETER">contrainte_table</replaceable> [ NOT VALID ]
     ADD <replaceable class="PARAMETER">contrainte_table_utilisant_index</replaceable>
     VALIDATE CONSTRAINT <replaceable class="PARAMETER">constraint_name</replaceable>
@@ -114,8 +114,8 @@ ALTER TABLE [ IF EXISTS ] <replaceable class="parameter">nom</replaceable>
     <term><literal>IF EXISTS</literal></term>
     <listitem>
      <para>
-      Do not throw an error if the table does not exist. A notice is issued
-      in this case.
+	  Ne retourne pas d'erreur si la table n'existe pas. Seul un message d'avertissement
+	  est retourné dans ce cas.
      </para>
     </listitem>
    </varlistentry>
@@ -259,10 +259,10 @@ ALTER TABLE [ IF EXISTS ] <replaceable class="parameter">nom</replaceable>
       s'assurer que toutes les lignes de la table satisfont la contrainte,
       est ignorée. La contrainte sera toujours assurée pour les insertions
       et mises à jour suivantes (autrement dit, elles échoueront sauf
-      s'il existe une ligne correspondante dans la table référencée).
-      , in the case
-      of foreign keys; and they'll fail unless the new row matches the
-      specified check constraints)
+      s'il existe une ligne correspondante dans la table référencée
+	  par
+	  la clé étrangère, ou elles échoueront sauf si la nouvelle ligne correspond aux
+	  contraintes de vérification spécifiées)
       Par contre, la base de données ne supposera pas que la contrainte
       est valable pour toutes les lignes dans la table, tant que la
       contrainte n'a pas été validée en utilisant l'option <literal>VALIDATE
@@ -501,10 +501,10 @@ ALTER TABLE [ IF EXISTS ] <replaceable class="parameter">nom</replaceable>
 
      <para>
       Il doit y avoir aussi une correspondance des contraintes de tables enfants
-      pour toutes les contraintes <literal>CHECK</literal>, except those
-      marked non-inheritable (that is, created with <literal>ALTER TABLE ONLY</literal>)
-      in the parent, which are ignored; all child-table constraints matched
-      must not be marked non-inheritable. Actuellement, les
+      pour toutes les contraintes <literal>CHECK</literal>, sauf pour celles
+	  qui ont été définies comme non-héritables (c'est-à-dire créées avec l'option <literal>ALTER TABLE ... ADD CONSTRAINT ... NO INHERIT</literal>)
+	  par la table parente, qui sont donc ignorées. Les contraintes des tables filles en correspondance avec
+	  celles de la table parente ne doivent pas être définies comme non-héritables. Actuellement, les
       contraintes <literal>UNIQUE</literal>, <literal>PRIMARY KEY</literal>
       et <literal>FOREIGN KEY</literal> ne sont pas prises en compte mais ceci
       pourrait changer dans le futur.
@@ -620,9 +620,8 @@ ALTER TABLE [ IF EXISTS ] <replaceable class="parameter">nom</replaceable>
    est possible de faire par la suppression et le recréation de la table.
    Néanmoins, un superutilisateur peut modifier le propriétaire de n'importe
    quelle table.)
-   To add a column or alter a column type or use the <literal>OF</literal>
-   clause, you must also have <literal>USAGE</literal> privilege on the data
-   type.
+   Pour ajouter une colonne ou modifier un type de colonne ou utiliser la clause <literal>OF</literal>,
+   vous devez avoir le droit <literal>USAGE</literal> sur le type de la donnée.
   </para>
  </refsect1>
 
@@ -636,15 +635,17 @@ ALTER TABLE [ IF EXISTS ] <replaceable class="parameter">nom</replaceable>
       <listitem>
        <para>
         Le nom (éventuellement qualifié du nom du schéma) de la table à modifier.
-        Si <literal>ONLY</literal> est indiqué, seule cette table
-        est modifiée. Dans le cas contraire, la table
-        et toutes ses tables filles (s'il y en a) sont modifiées.
+        Si <literal>ONLY</literal> est indiqué avant le nom de la table, seule
+        cette table est modifiée. Dans le cas contraire, la table et toutes ses
+        tables filles (s'il y en a) sont modifiées. En option,
+        <literal>*</literal> peut être ajouté après le nom de la table pour
+        indiquer explicitement que les tables filles doivent être inclues.
        </para>
       </listitem>
      </varlistentry>
 
      <varlistentry>
-      <term><replaceable class="parameter">colonne</replaceable></term>
+      <term><replaceable class="parameter">nom_colonne</replaceable></term>
       <listitem>
        <para>
         Le nom d'une colonne, existante ou nouvelle.
@@ -654,7 +655,7 @@ ALTER TABLE [ IF EXISTS ] <replaceable class="parameter">nom</replaceable>
 
      <varlistentry>
       <term><replaceable
-        class="parameter">nouvelle_colonne</replaceable></term>
+        class="parameter">nouveau_nom_colonne</replaceable></term>
       <listitem>
        <para>
         Le nouveau nom d'une colonne existante.
@@ -931,8 +932,8 @@ ALTER TABLE [ IF EXISTS ] <replaceable class="parameter">nom</replaceable>
     et <literal>TABLESPACE</literal> ne sont jamais propagées aux tables
     descendantes&nbsp;; c'est-à-dire qu'elles agissent comme si
     <literal>ONLY</literal> est spécifié.
-    Adding a constraint recurses only for <literal>CHECK</literal> constraints
-    that are not marked <literal>NO INHERIT</literal>.
+	Seules les contraintes <literal>CHECK</literal> sont propagées,
+	et uniquement si elles ne sont pas marquées <literal>NO INHERIT</literal>.
    </para>
 
    <para>
@@ -1005,9 +1006,9 @@ ALTER TABLE [ IF EXISTS ] <replaceable class="parameter">nom</replaceable>
   </para>
 
   <para>
-   To rename an existing constraint:
+   Pour renommer une contrainte existante&nbsp;:
 <programlisting>
-ALTER TABLE distributors RENAME CONSTRAINT zipchk TO zip_check;
+ALTER TABLE distributeurs RENAME CONSTRAINT verif_cp TO verif_code_postal;
 </programlisting>
   </para>
 
@@ -1027,10 +1028,10 @@ ALTER TABLE distributors RENAME CONSTRAINT zipchk TO zip_check;
 </programlisting>
   </para>
 
-  <para> 
-   To add a check constraint only to a table and not to its children:
+  <para>
+   Pour ajouter une contrainte <literal>CHECK</literal> à une table, mais pas à ses filles&nbsp;:
 <programlisting>
-ALTER TABLE distributors ADD CONSTRAINT zipchk CHECK NO INHERIT (char_length(zipcode) = 5);
+ALTER TABLE distributeurs ADD CONSTRAINT verif_cp CHECK (char_length(code_postal) = 5) NO INHERIT;
 </programlisting>
    (The check constraint will not be inherited by future children, either.)
   </para>

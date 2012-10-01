@@ -26,7 +26,7 @@
 [ INHERITS ( <replaceable>table_parent</replaceable> [, ... ] ) ]
 [ WITH ( <replaceable class="parameter">parametre_stockage</replaceable> [= <replaceable class="parameter">valeur</replaceable>] [, ... ] ) | WITH OIDS | WITHOUT OIDS ]
 [ ON COMMIT { PRESERVE ROWS | DELETE ROWS | DROP } ]
-[ TABLESPACE <replaceable class="parameter">tablespace</replaceable> ]
+[ TABLESPACE <replaceable class="parameter">nom_tablespace</replaceable> ]
 
 CREATE [ [ GLOBAL | LOCAL ] { TEMPORARY | TEMP } | UNLOGGED ] TABLE <replaceable class="PARAMETER">nom_table</replaceable>
     OF <replaceable class="PARAMETER">nom_type</replaceable> [ (
@@ -36,14 +36,14 @@ CREATE [ [ GLOBAL | LOCAL ] { TEMPORARY | TEMP } | UNLOGGED ] TABLE <replaceable
 ) ]
 [ WITH ( <replaceable class="PARAMETER">parametre_stockage</replaceable> [= <replaceable class="PARAMETER">valeur</replaceable>] [, ... ] ) | WITH OIDS | WITHOUT OIDS ]
 [ ON COMMIT { PRESERVE ROWS | DELETE ROWS | DROP } ]
-[ TABLESPACE <replaceable class="PARAMETER">tablespace</replaceable> ]
+[ TABLESPACE <replaceable class="PARAMETER">nom_tablespace</replaceable> ]
 
 <phrase>où <replaceable class="parameter">contrainte_colonne</replaceable>
 peut être&nbsp;:</phrase>
 
 [ CONSTRAINT <replaceable class="parameter">nom_contrainte</replaceable> ]
 { NOT NULL | NULL |
-  CHECK [ NO INHERIT ] ( <replaceable class="PARAMETER">expression</replaceable> ) |
+  CHECK ( <replaceable class="PARAMETER">expression</replaceable> ) [ NO INHERIT ] |
   DEFAULT <replaceable>expression_par_défaut</replaceable> |
   UNIQUE <replaceable class="parameter">parametres_index</replaceable> |
   PRIMARY KEY <replaceable class="parameter">parametres_index</replaceable> |
@@ -63,7 +63,7 @@ valoir&nbsp;:</phrase>
 [ CONSTRAINT <replaceable class="parameter">nom_contrainte</replaceable> ]
 { UNIQUE ( <replaceable class="parameter">nom_colonne</replaceable> [, ... ] ) <replaceable class="parameter">parametres_index</replaceable> |
   PRIMARY KEY ( <replaceable class="parameter">nom_colonne</replaceable> [, ... ] ) <replaceable class="parameter">parametres_index</replaceable> |
-  CHECK [ NO INHERIT ] ( <replaceable class="parameter">expression</replaceable> ) |
+  CHECK ( <replaceable class="parameter">expression</replaceable> ) [ NO INHERIT ] |
   FOREIGN KEY ( <replaceable class="parameter">nom_colonne</replaceable> [, ...
 ] ) REFERENCES <replaceable class="parameter">table_reference</replaceable> [ (
 <replaceable class="parameter">colonne_reference</replaceable> [, ... ] ) ]
@@ -75,12 +75,12 @@ contraintes <literal>UNIQUE</literal>, <literal>PRIMARY KEY</literal> et
 <literal>EXCLUDE</literal> sont&nbsp;:
 
 [ WITH ( <replaceable class="parameter">paramètre_stockage</replaceable> [= <replaceable class="parameter">valeur</replaceable>] [, ... ] ) ]
-[ USING INDEX TABLESPACE <replaceable class="parameter">tablespace</replaceable> ]
+[ USING INDEX TABLESPACE <replaceable class="parameter">nom_tablespace</replaceable> ]
 
 <phrase><replaceable class="PARAMETER">exclude_element</replaceable> dans une
 contrainte <literal>EXCLUDE</literal> peut valoir&nbsp;:</phrase>
 
-{ <replaceable class="parameter">column</replaceable> | ( <replaceable class="parameter">expression</replaceable> ) } [ <replaceable class="parameter">opclass</replaceable> ] [ ASC | DESC ] [ NULLS { FIRST | LAST } ]
+{ <replaceable class="parameter">nom_colonne</replaceable> | ( <replaceable class="parameter">expression</replaceable> ) } [ <replaceable class="parameter">opclass</replaceable> ] [ ASC | DESC ] [ NULLS { FIRST | LAST } ]
 </synopsis>
 
  </refsynopsisdiv>
@@ -132,9 +132,9 @@ contrainte <literal>EXCLUDE</literal> peut valoir&nbsp;:</phrase>
   </para>
 
   <para>
-   To be able to create a table, you must have <literal>USAGE</literal>
-   privilege on all column types or the type in the <literal>OF</literal>
-   clause, respectively.
+   Pour pouvoir créer une table, vous devez avoir le droit
+   <literal>USAGE</literal> sur les types de chaque colonne ou sur le type
+   indiqué dans la clause <literal>OF</literal>.
   </para>
  </refsect1>
 
@@ -170,7 +170,8 @@ contrainte <literal>EXCLUDE</literal> peut valoir&nbsp;:</phrase>
       On peut éventuellement écrire <literal>GLOBAL</literal> ou <literal>LOCAL</literal>
       avant <literal>TEMPORARY</literal> ou <literal>TEMP</literal>. Cela
       ne fait pas de différence dans <productname>PostgreSQL</productname> (cf.
-      <xref linkend="sql-createtable-compatibility"/>).
+      Cela ne fait actuellement pas de différence dans <productname>PostgreSQL</productname>
+      et est obsolète&nbsp;; voir <xref linkend="sql-createtable-compatibility"/>).
      </para>
     </listitem>
    </varlistentry>
@@ -306,8 +307,8 @@ contrainte <literal>EXCLUDE</literal> peut valoir&nbsp;:</phrase>
       définition de table contient des contraintes <literal>CHECK</literal> de même nom,
       ces contraintes doivent toutes avoir la même expression de vérification, ou
       une erreur sera retournée. Les contraintes qui ont le même nom et la même expression
-      seront fusionnées en une seule. A constraint marked <literal>NO INHERIT</literal> in a
-      parent will not be considered. Notez qu'une contrainte <literal>CHECK</literal>
+      seront fusionnées en une seule. Une contrainte marquée <literal>NO INHERIT</literal>
+      dans une table parent ne sera pas prise en compte. Notez qu'une contrainte <literal>CHECK</literal>
       non nommée dans la nouvelle table ne sera jamais fusionnée puisqu'un
       nom unique lui sera toujours affecté.
      </para>
@@ -381,9 +382,10 @@ contrainte <literal>EXCLUDE</literal> peut valoir&nbsp;:</phrase>
       clause <literal>LIKE</literal>, une erreur est rapportée.
      </para>
      <para>
-      The <literal>LIKE</literal> clause can also be used to copy columns from
-      views, foreign tables, or composite types.  Inapplicable options (e.g., <literal>INCLUDING
-      INDEXES</literal> from a view) are ignored.
+      La clause <literal>LIKE</literal> peut aussi être utilisée pour copier les
+      colonnes des vues, tables distantes et types composites. Les options
+      inapplicables (comme <literal>INCLUDING INDEXES</literal> à partir d'une vue)
+      sont ignorées.
      </para>
     </listitem>
    </varlistentry>
@@ -428,7 +430,7 @@ contrainte <literal>EXCLUDE</literal> peut valoir&nbsp;:</phrase>
    </varlistentry>
 
    <varlistentry>
-    <term><literal>CHECK [ NO INHERIT ] ( <replaceable class="parameter">expression</replaceable> )</literal></term>
+    <term><literal>CHECK ( <replaceable class="parameter">expression</replaceable> ) [ NO INHERIT ]</literal></term>
     <listitem>
      <para>
       La clause <literal>CHECK</literal> spécifie une expression de
@@ -448,8 +450,8 @@ contrainte <literal>EXCLUDE</literal> peut valoir&nbsp;:</phrase>
      </para>
 
      <para>
-      A constraint marked with <literal>NO INHERIT</literal> will not propagate to
-      child tables.
+      Une contrainte marquée <literal>NO INHERIT</literal> ne sera pas propagée
+      aux tables filles.
      </para>
     </listitem>
    </varlistentry>
@@ -567,7 +569,7 @@ contrainte <literal>EXCLUDE</literal> peut valoir&nbsp;:</phrase>
       autorisé, il existe peu de raison pour utiliser des index B-tree ou hash
       avec une contrainte d'exclusion parce que cela ne fait rien de mieux que
       ce que peut faire une contrainte unique ordinaire. Donc, en pratique,
-      la méthode d'accès sera toujours <acronym>GiST</acronym> or
+      la méthode d'accès sera toujours <acronym>GiST</acronym> ou
       <acronym>SP-GiST</acronym>.
      </para>
 
@@ -587,7 +589,7 @@ contrainte <literal>EXCLUDE</literal> peut valoir&nbsp;:</phrase>
      [ ON UPDATE <replaceable class="parameter">action</replaceable> ]</literal> (contrainte de colonne)</term>
 
    <term><literal>FOREIGN KEY ( <replaceable
-class="parameter">colonne</replaceable> [, ... ] )
+class="parameter">nom_colonne</replaceable> [, ... ] )
     REFERENCES <replaceable class="parameter">table_reference</replaceable> [ (
 <replaceable class="parameter">colonne_reference</replaceable> [, ... ] ) ] 
     [ MATCH <replaceable class="parameter">matchtype</replaceable> ]
@@ -835,10 +837,10 @@ class="parameter">colonne</replaceable> [, ... ] )
    </varlistentry>
 
    <varlistentry>
-     <term><literal>TABLESPACE <replaceable class="parameter">tablespace</replaceable></literal></term>
+     <term><literal>TABLESPACE <replaceable class="parameter">nom_tablespace</replaceable></literal></term>
      <listitem>
        <para>
-         <replaceable class="parameter">tablespace</replaceable> est le
+         <replaceable class="parameter">nom_tablespace</replaceable> est le
 	 nom du tablespace dans lequel est créée la nouvelle table. S'il
 	 n'est pas spécifié, <xref linkend="guc-default-tablespace"/> est consulté, sauf
       si la table est temporaire auquel cas <xref linkend="guc-temp-tablespaces"/>
@@ -849,12 +851,12 @@ class="parameter">colonne</replaceable> [, ... ] )
    </varlistentry>
 
    <varlistentry>
-     <term><literal>USING INDEX TABLESPACE <replaceable class="parameter">tablespace</replaceable></literal></term>
+     <term><literal>USING INDEX TABLESPACE <replaceable class="parameter">nom_tablespace</replaceable></literal></term>
      <listitem>
        <para>
         Les index associés à une contrainte <literal>UNIQUE</literal>,
 	    <literal>PRIMARY KEY</literal>, ou <literal>EXCLUDE</literal> sont créés dans le tablespace 
-	nommé <replaceable class="parameter">tablespace</replaceable>.
+	nommé <replaceable class="parameter">nom_tablespace</replaceable>.
 	S'il n'est pas précisé, <xref linkend="guc-default-tablespace"/> est consulté, sauf
       si la table est temporaire auquel cas <xref linkend="guc-temp-tablespaces"/>
       est utilisé.
@@ -1324,13 +1326,22 @@ CREATE TABLE employes OF type_employe (
    </para>
 
    <para>
-    <productname>PostgreSQL</productname> ne respecte pas la distinction
-    imposée par le standard entre tables temporaires globales et locales.
-    En effet, cette distinction repose sur le concept de modules que
-    <productname>PostgreSQL</productname> ne gère pas. Pour des raisons
+    Le standard SQL distingue aussi les tables temporaires globales et locales.
+    Une table temporaire local a un contenu séparé pour chaque module SQL à
+    l'intérieur de chaque session bien que sa définition est toujours partagée
+    entre les sessions. Comme <productname>PostgreSQL</productname> ne supporte
+    pas les modules SQL, la distinction n'a pas de raison d'être avec
+    <productname>PostgreSQL</productname>.
+   </para>
+
+   <para>
+    Pour des raisons
     de compatibilité, <productname>PostgreSQL</productname> accepte 
     néanmoins les mots-clés <literal>GLOBAL</literal> et <literal>LOCAL</literal>
-    dans la définition d'une table temporaire, mais ils n'ont aucun effet.
+    dans la définition d'une table temporaire, mais ils n'ont actuellement aucun effet.
+    L'utilisation de ces mots clés n'est pas conseillée car les versions futures
+    de <productname>PostgreSQL</productname> pourrait adopter une interprétation
+    plus standard de leur signification.
    </para>
 
    <para>

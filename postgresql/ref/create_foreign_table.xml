@@ -52,7 +52,7 @@ CREATE FOREIGN TABLE [ IF NOT EXISTS ] <replaceable class="PARAMETER">table_name
   </para>
 
   <para>
-   Pour avoir le droits de créer une table, vous devez avoir le droit <literal>USAGE</literal>
+   Pour avoir le droit de créer une table, vous devez avoir le droit <literal>USAGE</literal>
    sur tous les types des colonnes.
   </para>
  </refsect1>
